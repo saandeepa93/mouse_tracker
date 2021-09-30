@@ -1,0 +1,22 @@
+import os
+import csv
+
+class Logger:
+  def __init__(self, root_path, user_id):
+    self.root_path = root_path
+    self.user_id = user_id
+    self.moves = []
+    self.clicks = []
+    self.headers = ["user", "x", "y", "state", "time_stamp"]
+    self.drag = False
+
+  def log_moves(self, x, y, state, time_stamp):
+    if self.drag == True:
+      state = "Drag"
+    self.moves.append([self.user_id, x, y, state, time_stamp])
+
+  def save(self):
+    with open(os.path.join(self.root_path, f"{self.user_id }.csv"), "w") as f:
+      writer = csv.writer(f)
+      writer.writerow(self.headers)
+      writer.writerows(self.moves)
