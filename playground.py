@@ -6,7 +6,7 @@ from sys import exit as e
 
 
 def on_move(x, y):
-  print(x, y)
+  # print(x, y)
   logger.log_moves(round(x, 2), round(y, 2), "Move", time.time() - start_time)
 
 def on_click(x, y, button, pressed):

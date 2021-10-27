@@ -28,9 +28,17 @@ def generate_ang(lineA, lineB):
 def generate_data(df, eps):
   lineA = np.array([[0, y], [x, y]])
   
-  timestamp = df.loc[:, ['time_stamp']].to_numpy().ravel()
+  timestamp = df.loc[df['state']=="Move"]['time_stamp'].to_numpy()
   diff_time = np.diff(timestamp)
-  intervals = np.argwhere(diff_time > eps).ravel()
+
+  intervals = list(np.argwhere(diff_time > eps).ravel())
+
+  clicked = df.index[df['state'].between("Pressed", "Released")].tolist()
+  diff_clicked = list(zip(clicked, clicked[1:]))[::2]
+  diff_clicked = [i[1] - i[0] for i in diff_clicked]
+  diff_clicked = [idx*2 for idx, element in enumerate(diff_clicked) if element > 1] 
+  drag_interval = [(clicked[i], clicked[i+1]) for i in diff_clicked]
+
   new_df = {'Action':[], 'Distance':[], "Time":[], "Direction":[]}
   prev_int = 0
   for next_int in intervals:
@@ -44,9 +52,7 @@ def generate_data(df, eps):
     action = columns.values.tolist()[0]
     new_df['Action'].append(action)
 
-    print(columns)
     prev_int = next_int+1
-    continue
     if columns.values.tolist()[0] in valid_moves and columns.all():
       p1 = np.array([segment[0][0], segment[0][1]])
       p2 = np.array([segment[-1][0], segment[-1][1]])
@@ -62,8 +68,6 @@ def generate_data(df, eps):
       new_df["Distance"].append(-1)
       new_df["Direction"].append(-1)
     prev_int = next_int+1
-  e()
-  print(new_df)
   new_df = pd.DataFrame(new_df)
   new_df.to_csv("./logs/u_3_processed.csv")
 
