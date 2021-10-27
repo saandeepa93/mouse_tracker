@@ -3,6 +3,7 @@ import math
 import numpy as np
 import pandas as pd
 import pyautogui
+import argparse
 import matplotlib.pyplot as plt
 from sys import exit as e
 
@@ -25,7 +26,7 @@ def generate_ang(lineA, lineB):
   return ang_deg
 
 
-def generate_data(df, eps):
+def generate_data(df, eps, opt):
   lineA = np.array([[0, y], [x, y]])
   
   timestamp = df.loc[df['state']=="Move"]['time_stamp'].to_numpy()
@@ -69,7 +70,7 @@ def generate_data(df, eps):
       new_df["Direction"].append(-1)
     prev_int = next_int+1
   new_df = pd.DataFrame(new_df)
-  new_df.to_csv("./logs/u_3_processed.csv")
+  new_df.to_csv(os.path.join(opt.dest, "processed.csv"))
 
 def plot_line(df, dest_path):
   arr = df.loc[:, ['x', 'y']].to_numpy()
@@ -79,14 +80,18 @@ def plot_line(df, dest_path):
   plt.close()
 
 if __name__ == "__main__":
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--dest", type=str, help="output directory")
+  opt = parser.parse_args()
+
   x = pyautogui.size()[0]
   y = pyautogui.size()[1]
 
   valid_moves = ['Move', "Drag", "Pressed"]
 
   #Replace with arguments
-  fname = "./logs/u_3.csv"
+  fname = os.path.join(opt.dest, "raw.csv")
   df = pd.read_csv(fname)
   
-  plot_line(df, "./logs/line_plot.png")
-  generate_data(df, 1.0)
+  plot_line(df, os.path.join(opt.dest, "line_plot.png"))
+  generate_data(df, 0.7, opt)
